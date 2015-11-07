@@ -1,0 +1,41 @@
+<div class="jumbotron">
+  <h2>Welcome to Weather by http://openweathermap.org/ !</h2>
+</div>
+
+<div class="row marketing">
+  <form action="/weather" method="post">
+    <input type="hidden" name="_csrf_token" value="<%= get_csrf_token() %>">
+    <div class="form-group">
+      <label for="city">Enter City:</label>
+      <input type="text" name="city" class="form-control" value="<%= @city %>"/>
+    </div>
+    <button type="submit" class="btn btn-primary">Get weather</button>
+  </form> 
+
+      Todays forecast:
+       <%= raw @today%>
+
+    <div class="form-group">
+      Three days forecast:
+    </div>
+
+<!-- The date is not coing in 3 day forecast-->
+  <%= for weather_record <- @w_data do %>
+    <p class="alert alert-info" role="alert">
+      Temperature: <%= weather_record["temp"]["day"] %> 
+     min: <%= weather_record["temp"]["min"] %> 
+     max: <%= weather_record["temp"]["max"] %> 
+</br> 
+      Pressure: <%= weather_record["pressure"] %>
+</br>
+      Humidity: <%= weather_record["humidity"] %>
+</br>
+      Weather: 
+     <%= for w <- weather_record["weather"] do %>
+         <%= w["main"] %> , <%= w["description"] %>
+      <% end %>  
+</br>
+    </p>
+  <% end %>  
+
+</div>
