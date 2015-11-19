@@ -1,10 +1,9 @@
 <div class="jumbotron">
-  <h2>Welcome to Weather by http://openweathermap.org/ !</h2>
+  Welcome to Weather by http://openweathermap.org/ !
 </div>
 
 <div class="row marketing">
   <form action="/weather" method="post">
-    <input type="hidden" name="_csrf_token" value="<%= get_csrf_token() %>">
     <div class="form-group">
       <label for="city">Enter City:</label>
       <input type="text" name="city" class="form-control" value="<%= @city %>"/>
@@ -22,7 +21,8 @@
 <!-- The date is not coing in 3 day forecast-->
   <%= for weather_record <- @w_data do %>
     <p class="alert alert-info" role="alert">
-      Temperature: <%= weather_record["temp"]["day"] %> 
+</br> 
+     Temperature: <%= weather_record["temp"]["day"] %> 
      min: <%= weather_record["temp"]["min"] %> 
      max: <%= weather_record["temp"]["max"] %> 
 </br> 
