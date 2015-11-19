@@ -3,6 +3,7 @@ defmodule WeatherPhoenix1.PageController do
 
   @api_token "9dbfcd557bbda142ce4ae277b5d24e3b"
   @weather_url_api "api.openweathermap.org/data/2.5/forecast/daily"
+#  api.openweathermap.org/data/2.5/forecast/daily?q=London&mode=json&cnt=3&units=metric&appid=2de143494c0b295cca9337e1e96b00e0
   @weather_url_api_today "api.openweathermap.org/data/2.5/weather"
   @api_no_data_error  "{\"cod\":\"404\",\"message\":\"Error: Not found city\"}\n"
   @api_data_list  "{\"cod\":\"200\",\"list\": forecast_list }\n"
@@ -21,16 +22,31 @@ defmodule WeatherPhoenix1.PageController do
     |> parse_response
   end
 
-  def weather_url_today(city, format \\ "html", unit \\"metric") do
-    "#{@weather_url_api_today}?q=#{city}&mode=#{format}&units=#{unit}&&APPID=#{@api_token}"
+  def weather_url_today(city, format \\ "html", units \\"metric") do
+      # old way  "#{@weather_url_api_today}?q=#{city}&mode=#{format}&unit=#{unit}&&APPID=#{@api_token}"
+    url_params_encoded = URI.encode_query %{
+    		       "q" => city , 
+		       "mode" => format, 
+		       "unit" => units, 
+		       "appid" => @api_token
+		       }
+    "#{@weather_url_api_today}?#{url_params_encoded}"
   end
 
-  def weather_url(city, format \\ "json", unit \\"metric", number_of_days \\ 3 ) do
-    "#{@weather_url_api}?q=#{city}&mode=#{format}&cnt=#{number_of_days}&units=#{unit}&&APPID=#{@api_token}"
+  def weather_url(city, format \\ "json", units \\"metric", number_of_days \\ 3 ) do
+    # old way "#{@weather_url_api}?q=#{city}&mode=#{format}&cnt=#{number_of_days}&unit=#{unit}&&APPID=#{@api_token}"
+    url_params_encoded = URI.encode_query %{
+    		    "q" => city , 
+    		    "mode" => format, 
+		    "units" => units, 
+		    "cnt" => number_of_days , 
+		    "appid" => @api_token
+		    }
+    IO.inspect "#{@weather_url_api}}?#{url_params_encoded}"
+    "#{@weather_url_api}?#{url_params_encoded}"
   end
 
   def parse_response({:ok, %HTTPoison.Response{status_code: 200, body: body}}) do
-    #IO.puts body
     parse_body(body)
   end
 
@@ -44,7 +60,6 @@ defmodule WeatherPhoenix1.PageController do
 
 
   def parse_response({:ok, %HTTPoison.Response{status_code: 404, body: a_body }}) do
-    #IO.puts a_body
     %{:error_message => "No weather data is available for this city"}
   end
 
@@ -65,8 +80,8 @@ defmodule WeatherPhoenix1.PageController do
 
  # Valid json goes here and need to parse valid string
   def format_render_response(conn, %{response_body: a_body},  %{response_body: today_body} ) do
+    IO.puts a_body
     response = Poison.Parser.parse!(a_body)
-    IO.puts response["city"]["name"]
     conn
     |> assign(:w_data, response["list"])
     |> assign(:today, today_body)
@@ -82,6 +97,7 @@ defmodule WeatherPhoenix1.PageController do
   end
 
   def show_weather(conn, %{"city" => city}) do
+  
   a_response = fetch(city)
   a_today = fetch_today(city)
   conn
